@@ -1,0 +1,35 @@
+/**index.wxss**/
+.userinfo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.userinfo-avatar {
+  width: 128rpx;
+  height: 128rpx;
+  margin: 20rpx;
+  border-radius: 50%;
+}
+
+.userinfo-nickname {
+  color: #aaa;
+}
+
+.poem {
+  margin-top: 400rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  font-family: "Helvetica Neue", Helvetica, STHeiTi, sans-serif;
+}
+
+.content {
+  font-size: 36rpx;
+}
+
+.origin {
+  margin-top: 20rpx;
+  font-size: 28rpx;
+}

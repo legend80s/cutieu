@@ -1,0 +1,22 @@
+<!--index.wxml-->
+<view class="container">
+  <view class="userinfo">
+    <block wx:if="!isLoadingUserInfo">
+      <block wx:if="userInfo.nickName">
+        <image bindtap="bindViewTap" class="userinfo-avatar" src="{{userInfo.avatarUrl}}" mode="cover"></image>
+        <text class="userinfo-nickname">{{userInfo.nickName}}</text>
+      </block>
+
+      <button wx:elif="{{canIUse}}" open-type="getUserInfo" bindgetuserinfo="getUserInfo"> 获取头像昵称 </button>
+    </block>
+  </view>
+
+  <view class="poem" bindtap="refreshPoem">
+    <text class="content">{{poem.content}}</text>
+
+    <view class="origin">
+      <text class="author">{{poem.origin.author}}</text>
+      <text class="title">《{{poem.origin.title}}》</text>
+    </view>
+  </view>
+</view>

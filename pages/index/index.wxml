@@ -12,11 +12,11 @@
   </view>
 
   <view class="poem" bindtap="refreshPoem">
-    <text class="content">{{poem.content}}</text>
+    <text class="content" selectable="true">{{poem.content}}</text>
 
     <view class="origin">
-      <text class="author">{{poem.origin.author}}</text>
-      <text class="title">《{{poem.origin.title}}》</text>
+      <text class="author" selectable="true">{{poem.origin.author}}</text>
+      <text class="title" selectable="true">《{{poem.origin.title}}》</text>
     </view>
   </view>
 </view>

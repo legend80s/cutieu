@@ -3,6 +3,48 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  margin-bottom: 40rpx;
+}
+
+.record-wrapper {
+  width: 100%;
+  padding: 0 30rpx;
+}
+.pills-wrapper {
+  margin-top: 40rpx;
+  padding: 0 20rpx;
+}
+
+.date {
+  padding: 0 20rpx;
+  text-align: center;
+  color: #1AAD19;
+  font-weight: bold;
+}
+
+.success-icon-wrapper {
+  margin-top: 40rpx;
+  text-align: center;
+}
+
+.pill-wrapper {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  font-size: smaller;
+  margin-bottom: 24rpx;
+}
+.pill-name {
+  width: 200rpx;
+}
+.pill-dosage {
+  height: 70rpx;
+  line-height: 70rpx;
+  /* width: 150rpx; */
+  flex: 1;
+  margin-right: 20rpx;
+  font-size: smaller;
 }
 
 .userinfo-avatar {
@@ -17,12 +59,16 @@
 }
 
 .poem {
-  margin-top: 400rpx;
+  margin-top: 212rpx;
   display: flex;
   flex-direction: column;
   align-items: center;
 
   font-family: "Helvetica Neue", Helvetica, STHeiTi, sans-serif;
+}
+
+.completed .poem {
+  margin-top: 40rpx;
 }
 
 .content {

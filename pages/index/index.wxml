@@ -1,5 +1,5 @@
 <!--index.wxml-->
-<view class="container">
+<view class="container {{ completed ? 'completed' : '' }}">
   <view class="userinfo">
     <block wx:if="!isLoadingUserInfo">
       <block wx:if="userInfo.nickName">
@@ -11,12 +11,67 @@
     </block>
   </view>
 
+
+  <!-- <modal id="modal" hidden="{{false}}" title="新增疗程" confirm-text="提交" cancel-text="取消" bindcancel="cancel" bindconfirm="confirm">
+  
+    疗程名称：<input type='text' placeholder="比如治疗脱发" focus/>
+    
+    <input type='number' placeholder="电话：" auto-focus/>
+    
+    <input type='text' placeholder="人数：" auto-focus/>
+    
+    <input type='text' placeholder="时间：" auto-focus/>
+  
+  </modal> -->
+
+  
+  <button type="primary" wx:if="{{ !treatments.length }}" bindtap="onTreatmentAdd">
+    点击添加疗程 💊
+  </button>
+
+  <view wx:else class="record-wrapper">
+    <picker mode="date" value="{{today}}" start="{{ firstRecordedDate }}" end="{{ today }}" bindchange="onDateChange">
+      <view class="date">{{ date }}</view>
+    </picker>
+
+    <view class="pills-wrapper">
+      <view 
+        class="pill-wrapper" 
+        wx:for="{{ records[date] || defaultUsages }}" 
+        wx:for-index="midx" 
+        wx:key="name"
+      >
+        <text class="pill-name">{{ item.name }}</text>
+        <button 
+          disabled="{{ date !== today }}"
+          wx:for="{{ item.dosages }}" 
+          wx:for-item="used"
+          wx:for-index="didx" 
+          wx:key="index"
+          class="pill-dosage" 
+          type="{{ used ? 'primary' : 'default' }}"
+          bindtap="onDosageTap"
+          data-medicine-index="{{ midx }}"
+          data-dosage-index="{{ didx }}"
+        >{{ item.dosages.length >= 3 ? '💊' : '第 ' + (didx + 1) + ' 次 💊' }}</button>
+      </view>
+    </view>
+
+    <view class="success-icon-wrapper" wx:if="{{ completed }}">
+      <icon
+        type="success"
+        size="80"
+        color="{{ date !== today ? '#C9C9C9' : '' }}"
+      />
+    </view>
+  </view>
+
   <view class="poem" bindtap="refreshPoem">
     <text class="content" selectable="true">{{poem.content}}</text>
 
     <view class="origin">
       <text class="author" selectable="true">{{poem.origin.author}}</text>
-      <text class="title" selectable="true">《{{poem.origin.title}}》</text>
+      <text class="title" selectable="true">{{poem.origin.title}}</text>
     </view>
   </view>
 </view>

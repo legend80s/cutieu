@@ -1,4 +1,4 @@
-const formatTime = date => {
+const formatTime = (date, { dateOnly = false, dateSeparator = '/' } = {}) => {
   const year = date.getFullYear()
   const month = date.getMonth() + 1
   const day = date.getDate()
@@ -6,7 +6,13 @@ const formatTime = date => {
   const minute = date.getMinutes()
   const second = date.getSeconds()
 
-  return [year, month, day].map(formatNumber).join('/') + ' ' + [hour, minute, second].map(formatNumber).join(':')
+  const dateString = [year, month, day].map(formatNumber).join(dateSeparator);
+
+  if (dateOnly) {
+    return dateString;
+  }
+
+  return dateString + ' ' + [hour, minute, second].map(formatNumber).join(':')
 }
 
 const formatNumber = n => {

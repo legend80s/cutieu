@@ -1,0 +1,23 @@
+{
+  "name": "CutieU",
+  "version": "1.0.0",
+  "description": "> WeChat mini program for \"Don't forget to take medicines!\"",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/legend80s/cutieu.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/legend80s/cutieu/issues"
+  },
+  "homepage": "https://github.com/legend80s/cutieu#readme",
+  "devDependencies": {
+    "git-commit-msg-linter": "^2.4.2"
+  }
+}

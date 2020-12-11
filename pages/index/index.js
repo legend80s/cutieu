@@ -41,8 +41,13 @@ const defaultRecords = {
   [today]: defaultUsages,
 };
 
+let timer;
+
 Page({
   data: {
+    /**
+     * @type {{ origin: { dynasty: string; author: string; content: string[] } }}
+    */
     poem: {},
     userInfo: {},
     isLoadingUserInfo: true,
@@ -58,6 +63,7 @@ Page({
     today,
     firstRecordedDate: '',
   },
+
   onPullDownRefresh() {
     this.refreshPoem();
   },
@@ -66,6 +72,7 @@ Page({
   onDateChange({ detail: { value: date } }) {
     this.setData({
       date,
+      completed: this.isCompleted(this.data.records, date),
       // usages: this.data.records[date],
     });
   },
@@ -78,6 +85,22 @@ Page({
     wx.navigateTo({
       url: '../logs/logs'
     })
+  },
+
+  isCompleted: (records, date) => {
+    const usages = records[date];
+
+    const completed = !!usages && usages.every(({ dosages }) =>
+      dosages.every(Boolean)
+    );
+
+    // console.log('isCompleted', date, records, completed);
+
+    if (completed) {
+      wx.vibrateShort();
+    }
+    
+    return completed;
   },
 
   onDosageTap({ target: { dataset: { medicineIndex, dosageIndex } } }) {
@@ -96,7 +119,7 @@ Page({
 
     this.setData({
       records,
-      completed: usages.every(({ dosages }) => dosages.every(Boolean)),
+      completed: this.isCompleted(records, date),
     });
 
     wx.setStorage({
@@ -112,22 +135,43 @@ Page({
     })
   },
 
+  onHide(){
+    this.isShow = false;
+  },
+  onShow(){
+    this.isShow = true;
+  },
+
   async onLoad() {
     console.log(treatments)
     this.setData({ treatments });
+
+    wx.onAccelerometerChange((e) => {
+      if (!this.isShow) { return; }
+
+      const shaked = Math.abs(e.x) > 1 && Math.abs(e.y) > 1
+      console.log(Math.abs(e.x) > 1, Math.abs(e.y) > 1, Math.abs(e.z) > 1, shaked)
+    
+      if (shaked) {
+        wx.vibrateShort(),
+        this.debouncedRefreshPoem();
+          // wx.showToast({
+          //   title: '摇一摇成功',
+          //   icon: 'success',
+          //   duration: 2000
+          // })
+      }
+    })
 
     wx.getStorage({
       key: 'records',
       success: res => {
         console.log('getStorage records success', res);
         const records = res.data || defaultRecords;
-        const completed = records[this.data.date].every(({ dosages }) =>
-          dosages.every(Boolean)
-        );
 
         this.setData({
           records,
-          completed,
+          completed: this.isCompleted(records, this.data.date),
           firstRecordedDate: Object.keys(records)[0],
         })
       },
@@ -180,29 +224,136 @@ Page({
     this.refreshPoem();
   },
 
-  async refreshPoem() {
-    let poem;
+  onPoemClick() {
+    const { nCharacters, poem, isShi } = this.data;
 
-    try {
-      poem = await this.fetchPoem();
-    } catch (error) {
-      console.error('fetchPoem', error);
+    const data = {
+      // 每一句话字数都相等，则认为是“诗”，否则是“词”
+      isShi,
+      nCharacters,
+      // 词不做断句，否则不好阅读
+      splitContent: poem.origin.content, // isShi ? splitContent.map(sentence => `${sentence}。`) : content,
     }
 
-    poem && this.setData({
-      poem: {
-        ...poem,
-        content: poem.content.replace(/。$/, ''),
-        origin: {
-          ...poem.origin,
-          title: `《${poem.origin.title}》`,
+    const MAX_CHARACTER_COUNT = 290;
+
+    if (nCharacters > MAX_CHARACTER_COUNT) {
+      wx.navigateTo({
+        url: '../poem/index',
+        success: function(res) {
+          // 通过eventChannel向被打开页面传送数据
+          res.eventChannel.emit('dataFromHome', { data: { ...data, poem } })
         }
+      })
+
+      return;
+    }
+
+    return this.setData({ ...data, showModal: true, });
+
+    // wx.showActionSheet({
+    //   itemList: [`${dynasty} · ${author}`, ...splitContent],
+    //   fail: (error) => {
+    //     console.log('showActionSheet', error)
+
+    //     return this.setData({
+    //       // 每一句话字数都相等，则认为是“诗”，否则是“词”
+    //       isShi,
+    //       showModal: true,
+    //       // 词不做断句，否则不好阅读
+    //       splitContent: isShi ? splitContent.map(sentence => `${sentence}。`) : content,
+    //     });
+    //   }
+    // })
+  },
+
+  hideModal() {
+    this.setData({ showModal: false })
+  },
+
+  async debouncedRefreshPoem() {
+    if (timer) { clearTimeout(timer) }
+
+    timer = setTimeout(() => {
+      this.refreshPoem();
+    }, 200);
+  },
+
+  async refreshPoem() {
+    let poem;
+    let fetching = true;
+    
+    setTimeout(() => {
+      fetching && wx.showLoading({
+        title: '诗词加载中……',
+      })
+    }, 300);
+
+    console.log('fetchPoem start', Date.now());
+
+    try {
+      poem = await this.fetchPoem({ timeout: 1000 });
+    } catch (error) {
+      console.error('fetchPoem', error);
+      wx.showToast({
+        title: error.message || JSON.stringify(error),
+      })
+    } finally {
+      console.log('fetchPoem end', Date.now());
+      fetching = false;
+      wx.hideLoading()
+    }
+
+    if (!poem) {
+      return;
+    }
+
+    const formatted = {
+      ...poem,
+
+      content: poem.content.replace(/。$/, ''),
+      origin: {
+        ...poem.origin,
+        title: `${poem.origin.title}`,
       },
+    };
+
+    const { content } = poem.origin;
+    
+    /** @type {string[]} */
+    const splitContent = content
+      .reduce((acc, sentence) => acc.concat(sentence.trim().split(/[。！，？]/)), [])
+      .filter(Boolean)
+
+    const isShi = splitContent.every(sentence => sentence.length === splitContent[0].length);
+    const nCharacters = content.reduce((acc, cur) => acc + cur.length, 0);
+    
+    console.log('content', content)
+    console.log('splitContent', splitContent)
+    console.log('isShi', isShi)
+    console.log('nCharacters', nCharacters)
+
+    const data = {
+      // 每一句话字数都相等，则认为是“诗”，否则是“词”
+      isShi,
+      nCharacters,
+      // 词不做断句，否则不好阅读
+      splitContent: content, // isShi ? splitContent.map(sentence => `${sentence}。`) : content,
+    }
+
+    this.setData({
+      poem: formatted,
+
+      ...data,
     });
   },
 
-  fetchPoem() {
+  fetchPoem({ timeout = 5000 } = {}) {
     return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        reject(new Error(`timeout for ${timeout}ms`))
+      }, timeout);
+
       wx.request({
         url: 'https://v2.jinrishici.com/one.json?client=npm-sdk/1.0&X-User-Token=6aeojNJwnJmAljhWJUljmPsIpv1K08ub',
         success(res) {

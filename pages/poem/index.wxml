@@ -1,0 +1,11 @@
+
+<view style="text-align: center;" class="container">
+  <view style="color: #333; font-size: 34rpx; font-weight: bold">{{poem.origin.title}}</view>
+  <view style="margin: 10rpx 0 20rpx; color: #65645F; font-size: 24rpx;">
+    <text>{{poem.origin.dynasty}} · {{poem.origin.author}}</text>
+  </view>
+
+  <view style="color: #333; font-size: {{ '30rpx' }}; line-height: 1.75; text-align: {{ isShi ? 'center' : 'left' }};">
+    <view style="margin-bottom: {{ isShi ? 0 : '15rpx' }}" wx:for="{{ splitContent }}" wx:key="*this">{{ item }}</view>
+  </view>
+</view>

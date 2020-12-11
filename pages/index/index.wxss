@@ -12,11 +12,11 @@
 }
 .pills-wrapper {
   margin-top: 40rpx;
-  padding: 0 20rpx;
+  /* padding: 0 20rpx; */
 }
 
 .date {
-  padding: 0 20rpx;
+  /* padding: 0 20rpx; */
   text-align: center;
   color: #1AAD19;
   font-weight: bold;
@@ -59,7 +59,7 @@
 }
 
 .poem {
-  margin-top: 212rpx;
+  margin-top: 180rpx;
   display: flex;
   flex-direction: column;
   align-items: center;

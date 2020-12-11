@@ -60,18 +60,32 @@
     <view class="success-icon-wrapper" wx:if="{{ completed }}">
       <icon
         type="success"
-        size="80"
+        size="70"
         color="{{ date !== today ? '#C9C9C9' : '' }}"
       />
     </view>
   </view>
 
-  <view class="poem" bindtap="refreshPoem">
+  <view class="poem" bindtap="onPoemClick">
     <text class="content" selectable="true">{{poem.content}}</text>
 
     <view class="origin">
+      <text class="author" selectable="true">{{poem.origin.dynasty}} · </text>
       <text class="author" selectable="true">{{poem.origin.author}}</text>
-      <text class="title" selectable="true">{{poem.origin.title}}</text>
+      <text class="title" selectable="true">《{{poem.origin.title}}》</text>
     </view>
   </view>
+
+  <modal no-confirm no-cancel hidden="{{!showModal}}" bindconfirm="hideModal" bindcancel="hideModal">
+    <view style="text-align: center;">
+      <view style="color: #333; font-size: 34rpx; font-weight: bold">{{poem.origin.title}}</view>
+      <view style="margin: 10rpx 0 20rpx; color: #65645F; font-size: 24rpx;">
+        <text>{{poem.origin.dynasty}} · {{poem.origin.author}}</text>
+      </view>
+
+      <view style="color: #333; font-size: {{ nCharacters > 230 ? '24rpx' : '30rpx' }}; line-height: 1.75; text-align: {{ isShi ? 'center' : 'left' }};">
+        <view style="margin-bottom: {{ isShi ? 0 : '15rpx' }}" wx:for="{{ splitContent }}" wx:key="*this">{{ item }}</view>
+      </view>
+    </view>
+  </modal>
 </view>
